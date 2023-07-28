@@ -49,10 +49,13 @@ export const Clients = () => {
 
 	const handleSearch = (searchWord: string) => {
 		if (searchWord === "") {
-			setClients(clientsMock);
+			setClients(clientsMock);		
 		} else {
 			let newClients = clientsMock.filter((client) => {
-				if (searchWord === client.customerId.toString()) {
+				searchWord = searchWord.toLowerCase();
+				if (searchWord === client.customerId.toString() 
+				|| client.name.toLowerCase().indexOf(searchWord) !== -1
+				|| client.curp.toLowerCase().indexOf(searchWord) !== -1) {
 					return client;
 				}
 			});
