@@ -3,11 +3,14 @@ import { ChangeEvent, useEffect, useState } from "react";
 
 import { currenciesMock } from "../mocks";
 import { Currency as ICurrency } from "../interfaces";
+import { useGetCurrencies } from "../api";
 import { Currency, DropdownOrderBy, Header, SearchInput } from "../components";
 
 export const Currencies = () => {
+	const [search, setSearch] = useState("");
 	const [currencies, setCurrencies] = useState<ICurrency[]>([]);
 	const [currentOrderOption, setCurrentOrderOption] = useState("");
+	const { mutate } = useGetCurrencies();
 
 	const orderOptions = [
 		{ label: "Nombre", value: "name" },
@@ -16,8 +19,8 @@ export const Currencies = () => {
 	];
 
 	useEffect(() => {
-		setCurrencies(currenciesMock);
-	}, []);
+		handleSearch(search);
+	}, [search]);
 
 	const orderCurrencies = (
 		currencies: ICurrency[],
@@ -41,16 +44,20 @@ export const Currencies = () => {
 	};
 
 	const handleSearch = (query: string) => {
-		if (query === "") {
-			setCurrencies(currenciesMock);
-		} else {
-			const filteredCurrencies = currenciesMock.filter((currency) => {
-				if (currency.name.toLowerCase().includes(query.toLowerCase()))
-					return currency;
-			});
-
-			setCurrencies(filteredCurrencies);
-		}
+		mutate(undefined, {
+			onSuccess: (data) => {
+				if (query === "") {
+					setCurrencies(currenciesMock);
+				} else {
+					const filteredCurrencies = currenciesMock.filter((currency) => {
+						if (currency.name.toLowerCase().includes(query.toLowerCase()))
+							return currency;
+					});
+		
+					setCurrencies(filteredCurrencies);
+				}
+			}
+		});
 	};
 
 	return (
@@ -67,7 +74,7 @@ export const Currencies = () => {
 					/>
 					<SearchInput
 						Icon={IconCoin}
-						onSearch={(e) => handleSearch(e.target.value)}
+						onSearch={(e) => setSearch(e.target.value)}
 						propertie="divisa"
 					/>
 				</div>
